@@ -1,0 +1,6 @@
+name = "controller-diagnostic-tool"
+compatibility_date = "2024-01-01"
+
+# This tells Cloudflare to serve all files in the current directory as static assets
+[site]
+bucket = "."

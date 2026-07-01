@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Controller Diagnostic & Calibration Suite</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div id="app-container">
+        <header class="app-header glass-panel">
+            <div class="header-title">
+                <h1>Controller Diagnostic Suite</h1>
+                <span id="connection-status" class="status-badge disconnected">Disconnected</span>
+            </div>
+            <div class="header-info">
+                <div class="info-item"><span>Name:</span> <strong id="device-name">-</strong></div>
+                <div class="info-item"><span>Conn:</span> <strong id="connection-type">-</strong></div>
+                <div class="info-item"><span>Battery:</span> <strong id="battery-level">-</strong></div>
+                <div class="info-item"><span>Polling:</span> <strong id="polling-rate">0 Hz</strong></div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-connect" class="btn btn-primary">Connect Controller</button>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section class="left-column glass-panel">
+                <div class="visual-header"><h2>Hardware Visualizer</h2></div>
+                <div class="controller-wrapper">
+                    <svg id="controller-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#2c3e50"/>
+                                <stop offset="100%" stop-color="#1a1d24"/>
+                            </linearGradient>
+                            <linearGradient id="btnGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ecf0f1"/>
+                                <stop offset="100%" stop-color="#95a5a6"/>
+                            </linearGradient>
+                            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="5" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <path d="M 60 100 C 60 50, 120 40, 180 60 L 220 60 C 280 40, 340 50, 340 100 L 340 160 C 340 230, 280 250, 240 220 L 160 220 C 120 250, 60 230, 60 160 Z" fill="url(#bodyGrad)" stroke="#34495e" stroke-width="2" filter="url(#glow)"/>
+                        <rect id="btn-touchpad" x="140" y="80" width="120" height="50" rx="10" fill="#34495e" stroke="#1a1d24" stroke-width="1" class="btn-svg"/>
+                        <circle id="btn-l3" cx="120" cy="160" r="25" fill="#222" stroke="#444" stroke-width="2" class="btn-svg"/>
+                        <circle id="btn-r3" cx="280" cy="160" r="25" fill="#222" stroke="#444" stroke-width="2" class="btn-svg"/>
+                        
+                        <path id="btn-dpad-up" d="M 70 100 L 90 100 L 90 120 L 70 120 Z" fill="url(#btnGrad)" class="btn-svg"/>
+                        <path id="btn-dpad-down" d="M 70 140 L 90 140 L 90 160 L 70 160 Z" fill="url(#btnGrad)" class="btn-svg"/>
+                        <path id="btn-dpad-left" d="M 50 120 L 70 120 L 70 140 L 50 140 Z" fill="url(#btnGrad)" class="btn-svg"/>
+                        <path id="btn-dpad-right" d="M 90 120 L 110 120 L 110 140 L 90 140 Z" fill="url(#btnGrad)" class="btn-svg"/>
+                        
+                        <circle id="btn-triangle" cx="300" cy="100" r="12" fill="url(#btnGrad)" class="btn-svg"/>
+                        <circle id="btn-circle" cx="330" cy="130" r="12" fill="url(#btnGrad)" class="btn-svg"/>
+                        <circle id="btn-cross" cx="300" cy="160" r="12" fill="url(#btnGrad)" class="btn-svg"/>
+                        <circle id="btn-square" cx="270" cy="130" r="12" fill="url(#btnGrad)" class="btn-svg"/>
+                        
+                        <rect id="btn-l1" x="60" y="30" width="60" height="15" rx="7" fill="#34495e" class="btn-svg"/>
+                        <rect id="btn-l2" x="60" y="10" width="60" height="15" rx="7" fill="#2c3e50" class="btn-svg"/>
+                        <rect id="btn-r1" x="280" y="30" width="60" height="15" rx="7" fill="#34495e" class="btn-svg"/>
+                        <rect id="btn-r2" x="280" y="10" width="60" height="15" rx="7" fill="#2c3e50" class="btn-svg"/>
+                        
+                        <circle id="btn-share" cx="140" cy="100" r="6" fill="url(#btnGrad)" class="btn-svg"/>
+                        <circle id="btn-options" cx="260" cy="100" r="6" fill="url(#btnGrad)" class="btn-svg"/>
+                        <circle id="btn-ps" cx="200" cy="170" r="8" fill="url(#btnGrad)" class="btn-svg"/>
+                    </svg>
+                </div>
+                <div class="canvases-wrapper">
+                    <div class="canvas-container">
+                        <canvas id="left-stick-canvas" width="200" height="200"></canvas>
+                        <span class="canvas-label">Left Analog</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="right-stick-canvas" width="200" height="200"></canvas>
+                        <span class="canvas-label">Right Analog</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="right-column">
+                <div class="glass-panel data-card">
+                    <h3>Hardware & Firmware Info</h3>
+                    <div id="hardware-info-grid" class="hardware-info-grid">
+                        <div class="info-row muted"><span>Waiting for connection...</span></div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel data-card">
+                    <h3>Real-Time Input Data</h3>
+                    <div class="data-group">
+                        <h4>Axes</h4>
+                        <div id="axes-data" class="data-grid muted">-</div>
+                    </div>
+                    <div class="data-group">
+                        <h4>Triggers</h4>
+                        <div id="triggers-data" class="data-grid muted">-</div>
+                    </div>
+                    <div class="data-group">
+                        <h4>Pressed Buttons</h4>
+                        <div id="buttons-data" class="data-list muted">No buttons pressed</div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel data-card">
+                    <h3>Hardware Calibration Engine</h3>
+                    
+                    <div class="calib-section">
+                        <h4>1. Stick Center Calibration</h4>
+                        <div id="center-calib-idle">
+                            <p class="muted">Place controller on flat surface, then click start.</p>
+                            <button id="btn-start-center" class="btn btn-primary">Start Center Calibration</button>
+                        </div>
+                        <div id="center-calib-running" style="display:none;">
+                            <div class="loader"></div>
+                            <p>Measuring center point...</p>
+                        </div>
+                        <div id="center-calib-write" style="display:none;">
+                            <p class="success-text">Center captured! Ready to write.</p>
+                            <button id="btn-write-center" class="btn btn-danger">Write Center to Flash</button>
+                            <button id="btn-cancel-center" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+
+                    <hr class="calib-divider">
+
+                    <div class="calib-section">
+                        <h4>2. Stick Range Calibration</h4>
+                        <div id="range-calib-idle">
+                            <p class="muted">Rotate sticks to their full extents.</p>
+                            <button id="btn-start-range" class="btn btn-primary">Start Range Calibration</button>
+                        </div>
+                        <div id="range-calib-running" style="display:none;">
+                            <div class="calib-visuals">
+                                <canvas id="calib-left-canvas" width="120" height="120"></canvas>
+                                <canvas id="calib-right-canvas" width="120" height="120"></canvas>
+                            </div>
+                            <div class="progress-container"><div id="sweep-progress-bar" class="progress-bar"></div></div>
+                        </div>
+                        <div id="range-calib-write" style="display:none;">
+                            <p class="success-text">Range captured! Ready to write.</p>
+                            <button id="btn-write-range" class="btn btn-danger">Write Range to Flash</button>
+                            <button id="btn-cancel-range" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel terminal-card">
+                    <h3>System Terminal</h3>
+                    <div id="terminal-output" class="terminal-body"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <div id="reconnect-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <h2>Connection Lost</h2>
+            <p>The controller was disconnected or timed out.</p>
+            <button id="btn-reconnect" class="btn btn-primary">Reconnect Device</button>
+        </div>
+    </div>
+    
+    <script type="module" src="js/core/App.js"></script>
+</body>
+</html>
